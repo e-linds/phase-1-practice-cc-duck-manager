@@ -3,34 +3,14 @@ fetch("http://localhost:3000/ducks")
 .then(data => {
 
     const duckOne = data[0]
-
-            document.querySelector("#duck-display-name").textContent = duckOne.name
-            document.querySelector("#duck-display-image").src = duckOne.img_url
-            document.querySelector("#duck-display-likes").textContent = `${duckOne.likes} likes`
-
-
+    displayDuck(duckOne)
 
     data.forEach((duck) => {
-        currentDuck = duck
-
-        const duckImg = document.createElement("img")
-        duckImg.src = duck.img_url
-        document.querySelector("#duck-nav").append(duckImg)
-
-        duckImg.addEventListener("click", (e) => {
-            e.preventDefault()
-
-            document.querySelector("#duck-display-name").textContent = duck.name
-            document.querySelector("#duck-display-image").src = duck.img_url
-            document.querySelector("#duck-display-likes").textContent = `${duck.likes} likes`
-
-        } 
-        )
-
-    })
+        addtoDuckNav(duck)
+     })
     
-    //event listener for like button. Currently likes only update when on the page, and do not persist when you click away. 
-    //need to create a god variable - will come back to this 
+
+// event listener for likes button
 const likes_btn = document.querySelector("#duck-display-likes")
 likes_btn.addEventListener("click", (e) => {
     e.preventDefault()
@@ -38,7 +18,6 @@ likes_btn.addEventListener("click", (e) => {
     currentLikes = currentLikes + 1
 
     likes_btn.textContent = `${currentLikes} likes`
-    console.log(currentLikes)
 })
 
 
@@ -47,17 +26,15 @@ const form = document.querySelector("#new-duck-form")
 form.addEventListener("submit", (e) => {
     e.preventDefault()
 
-    const newDuckName = e.target["duck-name-input"].value
-    const newDuckImg = e.target["duck-image-input"].value
-    const newDuckLikes = 0
+    const newDuck = {
+        name: e.target["duck-name-input"].value,
+        img_url: e.target["duck-image-input"].value,
+        likes: 0
+    }
 
-    document.querySelector("#duck-display-name").textContent = newDuckName
-    document.querySelector("#duck-display-image").src = newDuckImg
-    document.querySelector("#duck-display-likes").textContent = `${newDuckLikes} likes`
+    displayDuck(newDuck)
 
-    const duckImg = document.createElement("img")
-        duckImg.src = newDuckImg
-        document.querySelector("#duck-nav").append(duckImg)
+    addtoDuckNav(newDuck)
 
     fetch(`http://localhost:3000/ducks`, {
         method: "POST", 
@@ -65,13 +42,31 @@ form.addEventListener("submit", (e) => {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            "name": newDuckName,
-            "img_url": newDuckImg,
+            "name": newDuck.name,
+            "img_url": newDuck.img_url,
             "likes": 0
         })
     })
     form.reset()
 })
 
+//helper function: display a duck's information
+function displayDuck(variableDuck) {
+    document.querySelector("#duck-display-name").textContent = variableDuck.name
+    document.querySelector("#duck-display-image").src = variableDuck.img_url
+    document.querySelector("#duck-display-likes").textContent = `${variableDuck.likes} likes`
+}
+
+//helper function: add to duck nav, includes event listener for when nav imgs are clicked
+function addtoDuckNav(variableDuck) {
+    const duckImg = document.createElement("img")
+        duckImg.src = variableDuck.img_url
+        document.querySelector("#duck-nav").append(duckImg)
+
+        duckImg.addEventListener("click", (e) => {
+            e.preventDefault()
+            displayDuck(variableDuck)
+        })
+}
 
 })
